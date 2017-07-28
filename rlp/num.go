@@ -1,8 +1,8 @@
 package rlp
-
 import (
     "encoding/binary"
     "math"
+    "fmt"
 )
 
 func removeVacant(bytes []byte)[]byte{
@@ -92,7 +92,6 @@ func numEncode(val interface{})[]byte{
         signed() 
         iBytes := Uint32ToByte(uint32(v)) 
         bytes[0] = 0x00 + byte(len(iBytes))    
-        fmt.Println(iBytes)
         return append(bytes, iBytes...) 
     case float32:
         signed() 
@@ -114,29 +113,36 @@ func numEncode(val interface{})[]byte{
 }
 
 func numDecode(payload []byte)interface{}{
-    length := payload[0] - 0x00
-    data := payload[2:2+length]
+    head := payload[0]
     switch{
-    case length<0x04:
+    case head<=0x04:
+         length := payload[0] - 0x00
+         data := payload[2:2+length]
          v := int32(ByteToUint32(data))  
          if payload[1] == 1{
               return 0-v
          }     
          return v
-    case length<0x08:
+    case head<=0x08:
+         length := payload[0] - 0x04
+         data := payload[2:2+length]
          v := ByteToFloat32(data)  
          if payload[1] == 1{
               return 0-v
          }     
          return v
-    case length<0x1f:
+    case head<=0x1f:
+         length := payload[0] - 0x08
+         data := payload[2:2+length]
          v := ByteToUint64(data)  
          if payload[1] == 1{
               return 0-v
          }     
          return v
-    case length<0x28:
-         v := ByteToUint64(data)  
+    case head<=0x28:
+         length := payload[0] - 0x20
+         data := payload[2:2+length]
+         v := ByteToFloat64(data)  
          if payload[1] == 1{
               return 0-v
          }     
