@@ -1,0 +1,26 @@
+syntax="proto3";
+package chat;
+
+service Sending{
+    rpc Run(stream TalkingWords)returns(TalkingLength){}
+}
+
+service Receiving{
+    rpc Run(TalkingLength)returns(stream TalkingWords){}
+}
+
+service Talking{
+   rpc Run(stream TalkingWords)returns(stream TalkingWords){}
+}
+
+message TalkingWords{
+     string words = 1;
+}
+
+message TalkingLength{
+     int32 length = 1;
+}
+message SendingResponse{
+     string words = 1;
+}
+
